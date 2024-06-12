@@ -6,7 +6,7 @@
 
 // 여러가지 동물들을 키우는 게임 : 고양이,강아지,호랑이,사자,늑대,여우
 
-/* const animal = {
+const animal = {
   legs: 4,
   tail: true,
   stomach: [],
@@ -24,7 +24,21 @@ const tiger = {
     this.prey = target;
     return `${target}에게 조용히 접근한다.`;
   },
-}; */
+};
+
+const 백두산호랑이 = {
+  color: 'white',
+  name: '백돌이',
+  __proto__: tiger,
+};
+
+const 한라산호랑이 = {
+  color: 'orange',
+  name: '한돌이',
+  __proto__: tiger,
+};
+
+// animal.setEat('고기')
 
 // 생성자 함수
 
@@ -40,7 +54,10 @@ function Animal() {
   };
 }
 
+// const a1 = new Animal();
+
 function Tiger(name) {
+  Animal.call(this);
   this.name = name;
   this.pattern = '호랑이무늬';
   this.hunt = function (target) {
@@ -48,9 +65,39 @@ function Tiger(name) {
   };
 }
 
+Tiger.bark = function (sound) {
+  return sound;
+};
+
+// Tiger.prototype = Object.create(Animal.prototype);
+// Tiger.prototype.constructor = Tiger
+// Tiger.prototype = a1
+
+const 금강산호랑이 = new Tiger('금순이');
+
+const 시베리아호랑이 = Tiger('시순이');
+
+/* 함수의 메서드 (함수의 능력) */
+
+// call  , , ,
+// apply  [ , , ]
+
+// bind
+
+// throttle, debounce
+
+const arr = [1, 2, 3, 4];
+
 function sum(a, b) {
   let aa = this.va;
   console.log(`a : ${a}, b : ${b}, aa : ${aa}`);
 }
 
 sum.call({ va: 10 }, 1, 2);
+
+// sum.call(this) // this를 전달함 인수를 개별로 받음 => 함수 실행 o
+// sum.apply('hello',1,2,3) // this를 전달함 인수를 배열로 받음 => 함수 실행 o
+
+// const b = sum.bind('hello',1,2,3); // this를 전달함 인수를 개별로 받음 => 함수 실행 안함
+
+// first.addEventListener('click',b)
