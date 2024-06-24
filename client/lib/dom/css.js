@@ -1,6 +1,18 @@
-/* class */
+import { getNode } from './getNode.js';
+import { isString, isArray, isObject } from '../utils/type.js';
 
-function addClass(node, ...className) {
+/* -------------------------------------------- */
+/*                     class                    */
+/* -------------------------------------------- */
+
+/**
+ *
+ * @param {HTMLElement | string} node
+ * @param  {string | array | object} className
+ * @returns {void}
+ */
+
+export function addClass(node, ...className) {
   if (typeof node === 'string') node = document.querySelector(node);
 
   className.forEach((c) => {
@@ -18,7 +30,7 @@ function addClass(node, ...className) {
   });
 }
 
-function removeClass(node, className) {
+export function removeClass(node, className) {
   if (typeof node === 'string') node = document.querySelector(node);
 
   if (!className) {
@@ -35,7 +47,7 @@ function removeClass(node, className) {
   node.classList.remove(className);
 }
 
-function toggleClass(node, className) {
+export function toggleClass(node, className) {
   if (typeof node === 'string') node = document.querySelector(node);
 
   if (typeof className !== 'string') {
@@ -47,7 +59,9 @@ function toggleClass(node, className) {
   return node.classList.toggle(className);
 }
 
-/* style */
+/* -------------------------------------------- */
+/*                     style                    */
+/* -------------------------------------------- */
 
 function getStyle(node, prop) {
   if (isString(node)) node = getNode(node);
@@ -78,5 +92,5 @@ function setStyle(node, prop, value) {
   node.style[prop] = value;
 }
 
-const css = (node, prop, value) =>
+export const css = (node, prop, value) =>
   !value ? getStyle(node, prop) : setStyle(node, prop, value);
