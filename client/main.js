@@ -1,39 +1,74 @@
-import data from './data/data.js';
 import {
-  clearContents,
+  getNodes,
+  diceAnimation,
   getNode,
-  getRandom,
   insertLast,
-  addClass,
-  removeClass,
+  endScroll,
+  clearContents,
 } from './lib/index.js';
 
-const submit = getNode('#submit');
-const nameField = getNode('#nameField');
-const resultas = getNode('#nameField');
+// 1. 주사위 애니메이션
+// 2. 주사위 굴리기 버튼을 클릭하면 diceAnimation() 실행될 수 있도록
 
-function handleSubmit(e) {
-  e.preventDefault();
+const [rollingButton, recordButton, resetButton] = getNodes(
+  '.buttonGroup > button'
+);
 
-  const name = nameField.value;
-  const dataList = data(name);
-  const ran = getRandom(dataList.length);
+const recordListWrapper = getNode('.recordListWrapper');
 
-  if (!name || name.replace(/\s*/g, '') === '') {
-    addClass('.alert-error', 'is-active');
+let count = 0;
+let total = 0;
 
-    setTimeout(() => {
-      removeClass('.alert-error', 'is-active');
-    }, 2000);
+function createItem(value) {
+  const template = `
+  <tr>
+    <td>${++count}</td>
+    <td>${value}</td>
+    <td>${(total += Number(value))}</td>
+  </tr>`;
 
-    return;
-  }
-
-  clearContents(resultas);
-  insertLast(resultas, dataList[ran]);
+  return template;
 }
 
-submit.addEventListener('click', handleSubmit);
-resultas.addEventListener('click', (e) => {
-  window.navigator.clipboard.writeText(e.target.innerHTML);
-});
+function renderRecordItem() {
+  const diceVaule = getNode('#cube').getAttribute('dice');
+  insertLast('.recordList tbody', createItem(diceVaule));
+
+  endScroll(recordListWrapper);
+}
+
+const handleRollingDice = (() => {
+  let isClicked = false;
+  let stopAnimation;
+
+  return () => {
+    if (!isClicked) {
+      stopAnimation = setInterval(diceAnimation, 100);
+      recordButton.disabled = true;
+      resetButton.disabled = true;
+    } else {
+      clearInterval(stopAnimation);
+      recordButton.disabled = false;
+      resetButton.disabled = false;
+    }
+
+    isClicked = !isClicked;
+  };
+})();
+
+function handleRecord() {
+  recordListWrapper.hidden = false;
+
+  renderRecordItem();
+}
+
+function handleReset() {
+  recordListWrapper.hidden = true;
+  clearContents('tbody');
+  count = 0;
+  total = 0;
+}
+
+rollingButton.addEventListener('click', handleRollingDice);
+recordButton.addEventListener('click', handleRecord);
+resetButton.addEventListener('click', handleReset);
