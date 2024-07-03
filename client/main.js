@@ -1,74 +1,55 @@
+/* global gsap */
+
 import {
-  getNodes,
-  diceAnimation,
+  tiger,
+  delayP,
   getNode,
-  insertLast,
-  endScroll,
-  clearContents,
+  changeColor,
+  renderSpinner,
+  renderUserCard,
 } from './lib/index.js';
 
-// 1. 주사위 애니메이션
-// 2. 주사위 굴리기 버튼을 클릭하면 diceAnimation() 실행될 수 있도록
+const ENDPOINT = 'https://jsonplaceholder.typicode.com/users';
 
-const [rollingButton, recordButton, resetButton] = getNodes(
-  '.buttonGroup > button'
-);
+// 1. user 데이터 fetch 해주세요.
+//    - tiger.get
 
-const recordListWrapper = getNode('.recordListWrapper');
+// 2. fetch 데이터의 유저 이름만 콘솔 출력
+//     - 데이터 유형 파악  ex) 객체,배열,숫자,문자
+//     - 적당한 메서드 사용하기
 
-let count = 0;
-let total = 0;
+// 3. 유저 이름 화면에 렌더링
 
-function createItem(value) {
-  const template = `
-  <tr>
-    <td>${++count}</td>
-    <td>${value}</td>
-    <td>${(total += Number(value))}</td>
-  </tr>`;
+const userCardInner = getNode('.user-card-inner');
 
-  return template;
+async function renderUserList() {
+  // 로딩 스피너 렌더링
+  renderSpinner(userCardInner);
+
+  await delayP(2000);
+
+  try {
+    getNode('.loadingSpinner').remove();
+
+    const response = await tiger.get(ENDPOINT);
+
+    const data = response.data;
+
+    data.forEach((user) => renderUserCard(userCardInner, user));
+
+    changeColor('.user-card');
+
+    gsap.from('.user-card', {
+      x: -100,
+      opacity: 0,
+      stagger: {
+        amount: 1,
+        from: 'start',
+      },
+    });
+  } catch {
+    console.error('에러가 발생했습니다!');
+  }
 }
 
-function renderRecordItem() {
-  const diceVaule = getNode('#cube').getAttribute('dice');
-  insertLast('.recordList tbody', createItem(diceVaule));
-
-  endScroll(recordListWrapper);
-}
-
-const handleRollingDice = (() => {
-  let isClicked = false;
-  let stopAnimation;
-
-  return () => {
-    if (!isClicked) {
-      stopAnimation = setInterval(diceAnimation, 100);
-      recordButton.disabled = true;
-      resetButton.disabled = true;
-    } else {
-      clearInterval(stopAnimation);
-      recordButton.disabled = false;
-      resetButton.disabled = false;
-    }
-
-    isClicked = !isClicked;
-  };
-})();
-
-function handleRecord() {
-  recordListWrapper.hidden = false;
-
-  renderRecordItem();
-}
-
-function handleReset() {
-  recordListWrapper.hidden = true;
-  clearContents('tbody');
-  count = 0;
-  total = 0;
-}
-
-rollingButton.addEventListener('click', handleRollingDice);
-recordButton.addEventListener('click', handleRecord);
-resetButton.addEventListener('click', handleReset);
+renderUserList();
